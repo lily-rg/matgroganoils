@@ -1,18 +1,11 @@
 import { useState } from 'react'
-import { useCart } from '../context/CartContext'
-
-interface Painting {
-  id: number
-  title: string
-  price: number
-  image: string
-  size: string
-  description: string
-  available: boolean
-}
+import { useCart, type Painting } from '../context/CartContext'
+import { Link } from 'react-router-dom'
 
 function Shop() {
   const [expandedImage, setExpandedImage] = useState<number | null>(null)
+  const [showToast, setShowToast] = useState(false)
+  const [addedItem, setAddedItem] = useState<Painting | null>(null)
   const { addItem } = useCart()
 
   const paintings: Painting[] = [
@@ -50,8 +43,13 @@ function Shop() {
   }
 
   const handleAddToBasket = (painting: Painting) => {
-    addItem(painting, 1)
+    addItem(painting)
+    setAddedItem(painting)
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 3000)
   }
+
+  
 
   return (
     <div className="shop">
@@ -97,6 +95,19 @@ function Shop() {
       </div>
       {expandedImage && (
         <div className="modal-backdrop" onClick={() => setExpandedImage(null)} />
+      )}
+      {showToast && addedItem && (
+        <div className="toast-notification">
+          <div className="toast-content">
+            <img src={addedItem.image} alt={addedItem.title} className="toast-image" />
+            <div className="toast-details">
+              <h4>Added to basket</h4>
+              <p>{addedItem.title}</p>
+              <p className="toast-price">£{addedItem.price}</p>
+            </div>
+          </div>
+          <Link to="/cart" className="toast-link">View Basket</Link>
+        </div>
       )}
     </div>
   )
